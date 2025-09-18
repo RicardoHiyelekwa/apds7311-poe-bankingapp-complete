@@ -1,0 +1,48 @@
+version: 2.1
+
+orbs:
+  node: circleci/node@5.0.0
+  docker: circleci/docker@2.1.2
+
+jobs:
+  build-and-test:
+    docker:
+      - image: cimg/node:18.20  # ambiente Node.js
+    steps:
+      - checkout
+      - node/install-packages:
+          pkg-manager: npm
+      - run:
+          name: Run Backend Tests
+          command: |
+            cd backend
+            npm install
+            npm test
+      - run:
+          name: Run Frontend Build
+          command: |
+            cd frontend
+            npm install
+            npm run build
+
+  sonar-analysis:
+    docker:
+      - image: sonarsource/sonar-scanner-cli:latest
+    steps:
+      - checkout
+      - run:
+          name: Run SonarQube Analysis
+          command: |
+            sonar-scanner \
+              -Dsonar.projectKey=banking-app \
+              -Dsonar.sources=./backend,./frontend \
+              -Dsonar.host.url=${SONAR_HOST_URL} \
+              -Dsonar.login=${SONAR_TOKEN}
+
+workflows:
+  main:
+    jobs:
+      - build-and-test
+      - sonar-analysis:
+          requires:
+            - build-and-test
