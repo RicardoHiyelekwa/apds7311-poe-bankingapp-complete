@@ -1,7 +1,7 @@
 version: "3"
 services:
   sonarqube:
-    image: sonarqube:10.1-community   # versão atualizada e ativa
+    image: sonarqube:10.1-community   # versão atualizada
     container_name: sonarqube
     ports:
       - "9000:9000"
