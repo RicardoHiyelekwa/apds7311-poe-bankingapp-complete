@@ -19,8 +19,9 @@ jobs:
           name: Frontend setup
           command: |
             cd frontend
-            npm install
-            npm run build --force
+            npm ci
+            chmod +x node_modules/.bin/* || true
+            npm run build
 
   sonar-analysis:
     docker:
