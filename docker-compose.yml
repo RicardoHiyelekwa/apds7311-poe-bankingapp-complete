@@ -1,0 +1,26 @@
+services:
+  mongo:
+    image: mongo:6
+    ports:
+      - "27017:27017"
+    volumes:
+      - mongo_data:/data/db
+
+  backend:
+    build: ./backend
+    environment:
+      - NODE_ENV=development
+      - FRONTEND_URL=http://localhost:3000
+      - DB_CONNECTION=mongodb://mongo:27017/banking_app
+    depends_on:
+      - mongo
+    ports:
+      - "4000:4000"
+
+  frontend:
+    build: ./frontend
+    ports:
+      - "3000:3000"
+
+volumes:
+  mongo_data:
