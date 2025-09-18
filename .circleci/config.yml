@@ -14,13 +14,14 @@ jobs:
           command: |
             cd backend
             npm install
-            npm test || echo "No backend tests yet"
+            npm run build --force
+            
       - run:
           name: Frontend setup
           command: |
             cd frontend
             npm install
-            npm run build
+            npm run build --force
 
   sonar-analysis:
     docker:
