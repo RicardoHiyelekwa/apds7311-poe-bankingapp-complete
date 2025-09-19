@@ -4,17 +4,25 @@ orbs:
   node: circleci/node@5.0.0
 
 jobs:
+  # ================================
+  # Job de Build & Test
+  # ================================
   build-and-test:
     docker:
       - image: cimg/node:18.20
     steps:
       - checkout
+
+      # Backend setup
       - run:
           name: Backend setup
           command: |
             cd backend
             npm install
-            
+            # Opcional: rodar testes com cobertura
+            # npm test -- --coverage
+
+      # Frontend setup
       - run:
           name: Frontend setup
           command: |
@@ -22,7 +30,12 @@ jobs:
             npm ci
             chmod +x node_modules/.bin/* || true
             npm run build
+            # Opcional: rodar testes com cobertura
+            # npm test -- --coverage
 
+  # ================================
+  # Job de Análise SonarQube
+  # ================================
   sonar-analysis:
     docker:
       - image: sonarsource/sonar-scanner-cli:latest
@@ -32,11 +45,12 @@ jobs:
           name: Run SonarQube Analysis
           command: |
             sonar-scanner \
-              -Dsonar.projectKey=banking-app \
-              -Dsonar.sources=./backend,./frontend \
               -Dsonar.host.url=${SONAR_HOST_URL} \
               -Dsonar.login=${SONAR_TOKEN}
 
+# ================================
+# Workflow Principal
+# ================================
 workflows:
   main:
     jobs:
