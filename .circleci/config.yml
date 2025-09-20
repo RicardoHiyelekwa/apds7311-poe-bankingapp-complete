@@ -48,6 +48,46 @@ jobs:
               -Dsonar.host.url=${SONAR_HOST_URL} \
               -Dsonar.login=${SONAR_TOKEN}
 
+  # ================================
+  # Job de Segurança - ScoutSuite
+  # ================================
+  scoutscan:
+    docker:
+      - image: cimg/python:3.10
+    steps:
+      - checkout
+
+      # Criar profile "default" do AWS CLI
+      - run:
+          name: Setup AWS Credentials
+          command: |
+            mkdir -p ~/.aws
+            echo "[default]" > ~/.aws/credentials
+            echo "aws_access_key_id=${AWS_ACCESS_KEY_ID}" >> ~/.aws/credentials
+            echo "aws_secret_access_key=${AWS_SECRET_ACCESS_KEY}" >> ~/.aws/credentials
+            echo "[default]" > ~/.aws/config
+            echo "region=${AWS_DEFAULT_REGION}" >> ~/.aws/config
+
+      # Instalar ScoutSuite
+      - run:
+          name: Install ScoutSuite
+          command: |
+            git clone https://github.com/nccgroup/ScoutSuite.git
+            cd ScoutSuite
+            pip install -r requirements.txt
+
+      # Rodar ScoutSuite usando profile default
+      - run:
+          name: Run ScoutSuite Audit
+          command: |
+            cd ScoutSuite
+            python scout.py aws --profile default
+
+      # Guardar relatório como artefacto
+      - store_artifacts:
+          path: ScoutSuite/scoutsuite-report
+          destination: scoutsuite-report
+
 # ================================
 # Workflow Principal
 # ================================
@@ -56,5 +96,8 @@ workflows:
     jobs:
       - build-and-test
       - sonar-analysis:
+          requires:
+            - build-and-test
+      - scoutscan:
           requires:
             - build-and-test
