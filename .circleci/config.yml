@@ -51,7 +51,7 @@ jobs:
   # ================================
   # Job de Análise de Segurança (ScoutSuite)
   # ================================
-    scout-analysis:
+  scout-analysis:
     docker:
       - image: cimg/python:3.10
     steps:
@@ -70,6 +70,7 @@ jobs:
       - store_artifacts:
           path: scoutsuite-report
           destination: scoutsuite-report
+
 # ================================
 # Workflow Principal
 # ================================
